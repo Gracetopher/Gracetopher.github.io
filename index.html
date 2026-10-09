@@ -267,8 +267,6 @@ $("venueSelect").onchange = () => {
   const name = $("venueSelect").value;
   if (name) applyVenue(name);
 };
-  updateWheelUI();
-}
 $("saveVenueBtn").onclick = () => {
   const name = $("venueName").value.trim();
   if (!name) return;
