@@ -1,7 +1,7 @@
 {
   "name": "Derby Packing List",
   "short_name": "Derby Pack",
-  "description": "Build a roller derby packing list by venue, weather and wheel hardness.",
+  "description": "Packlist for Derby gamedays - the always bring + variables based on venue and weather.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
