@@ -81,14 +81,17 @@
 </head>
 <body>
 <header>
-  <h1>🛼 Derby Packing List</h1>
-  <p>Fill in today's details, then generate your list.</p>
+  <h1>🛼 Derby Pack-List</h1>
+  <p>It's (about to be Gameday! Here's a handy-dandy helper for the packlist :)</p>
 </header>
 <main>
 
   <div class="card">
     <h2>Venue</h2>
-    <div id="savedVenues"></div>
+    <label for="venueSelect">Choose a venue</label>
+    <select id="venueSelect">
+      <option value="">— pick a saved venue, or type a new name below —</option>
+    </select>
     <label for="venueName">Venue name</label>
     <input id="venueName" type="text" placeholder="e.g. Test Hall">
     <label for="gameDate">Game date</label>
@@ -241,11 +244,27 @@ function renderVenueChips(){
 function applyVenue(name){
   selectedVenueName = name;
   const v = venuesCache[name];
+  $("venueSelect").value = name;
   $("venueName").value = name;
   $("venueLat").value = v.lat ?? "";
   $("venueLon").value = v.lon ?? "";
   $("recHardness").value = v.hardness ?? "";
-  renderVenueChips();
+  renderVenueChips();{
+    const sel = $("venueSelect");
+    const current = sel.value;
+    sel.innerHTML = '<option value="">— pick a saved venue, or type a new name below —</option>';
+    Object.keys(venuesCache).sort().forEach(name => {
+      const opt = document.createElement("option");
+      opt.value = name;
+      opt.textContent = name;
+      sel.appendChild(opt);
+      });
+    if (venuesCache[current]) sel.value = current;
+  }
+  $("venueSelect").onchange = () => {
+    const name = $("venueSelect").value;
+    if (name) applyVenue(name);
+    };
   updateWheelUI();
 }
 $("saveVenueBtn").onclick = () => {
