@@ -232,15 +232,18 @@ const $ = id => document.getElementById(id);
 let selectedVenueName = null;
 
 function renderVenueChips(){
-  const box = $("savedVenues"); box.innerHTML = "";
+  const sel = $("venueSelect");
+  const current = sel.value;
+  sel.innerHTML = '<option value="">— pick a saved venue, or type a new name below —</option>';
   Object.keys(venuesCache).sort().forEach(name => {
-    const chip = document.createElement("div");
-    chip.className = "chip" + (name === selectedVenueName ? " active" : "");
-    chip.textContent = name;
-    chip.onclick = () => applyVenue(name);
-    box.appendChild(chip);
+    const opt = document.createElement("option");
+    opt.value = name;
+    opt.textContent = name;
+    sel.appendChild(opt);
   });
+  if (venuesCache[current]) sel.value = current;
 }
+
 function applyVenue(name){
   selectedVenueName = name;
   const v = venuesCache[name];
@@ -249,22 +252,13 @@ function applyVenue(name){
   $("venueLat").value = v.lat ?? "";
   $("venueLon").value = v.lon ?? "";
   $("recHardness").value = v.hardness ?? "";
-  renderVenueChips();{
-    const sel = $("venueSelect");
-    const current = sel.value;
-    sel.innerHTML = '<option value="">— pick a saved venue, or type a new name below —</option>';
-    Object.keys(venuesCache).sort().forEach(name => {
-      const opt = document.createElement("option");
-      opt.value = name;
-      opt.textContent = name;
-      sel.appendChild(opt);
-      });
-    if (venuesCache[current]) sel.value = current;
-  }
-  $("venueSelect").onchange = () => {
-    const name = $("venueSelect").value;
-    if (name) applyVenue(name);
-    };
+  updateWheelUI();
+}
+
+$("venueSelect").onchange = () => {
+  const name = $("venueSelect").value;
+  if (name) applyVenue(name);
+};
   updateWheelUI();
 }
 $("saveVenueBtn").onclick = () => {
