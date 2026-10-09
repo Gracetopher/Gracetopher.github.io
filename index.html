@@ -105,7 +105,7 @@
     <label for="recHardness">Recommended wheel hardness, e.g. 90-95</label>
     <input id="recHardness" type="text" placeholder="90-95">
     <button class="small" id="saveVenueBtn" style="margin-top:10px">Save this venue</button>
-    <p class="hint" id="venueHint">Saved venues live only in this browser. (For a venue list shared across devices, see the README.)</p>
+    <p class="hint" id="venueHint">Newly Saved venues live only in this browser. (remember to save any updates to the venues.json on github before pushing any updates that reset the cache (and remember to make thid part more user friendly when I get around to sharing with peeps)</p>
   </div>
 
   <div class="card">
@@ -166,7 +166,7 @@
 </main>
 
 <script>
-// ---------- Defaults (same data as the Python version) ----------
+// ---------- Defaults (same data as original vsCode Python version) ----------
 const DEFAULT_CONFIG = {
   categoryOrder: ["Derby Essentials: Gear","Derby Essentials: Weiteres","Textiles","Health & Hygiene","Food & drink","Other"],
   baseItems: {
@@ -201,10 +201,7 @@ const DEFAULT_CONFIG = {
 
 let CONFIG = loadJSON("derbyPackConfig", DEFAULT_CONFIG);
 
-// Venues: on this self-hosted build there's no Claude artifact database to
-// share them through, so they're kept in this browser's storage, same as
-// the plain single-device version. See the README for how to add a real
-// shared backend (e.g. Firebase, Supabase) later if you want one.
+// Venues: for now just the one central json - remember to come back latet & improve 
 let venuesCache = loadJSON("derbyPackVenues", {});
 
 function loadJSON(key, fallback){
@@ -213,7 +210,7 @@ function loadJSON(key, fallback){
 }
 function saveJSON(key, value){ try { localStorage.setItem(key, JSON.stringify(value)); } catch(e){} }
 
-// ---------- Range helpers (mirrors the Python parse_range / gap / fully_inside) ----------
+// ---------- Range helpers (like the original parse_range / gap / fully_inside) ----------
 function parseRange(raw){
   const nums = (raw.match(/\d+(?:[.,]\d+)?/g) || []).map(n => parseFloat(n.replace(",", ".")));
   if (nums.length !== 1 && nums.length !== 2) return null;
@@ -243,6 +240,16 @@ function renderVenueChips(){
     sel.appendChild(opt);
   });
   if (venuesCache[current]) sel.value = current;
+}
+async function loadSharedVenues(){
+  try {
+    const res = await fetch("venues.json", { cache: "no-store" });
+    if (!res.ok) return;
+    const shared = await res.json();
+    venuesCache = { ...shared, ...venuesCache };
+    renderVenueChips();
+    if (selectedVenueName && venuesCache[selectedVenueName]) applyVenue(selectedVenueName);
+  } catch(e){ /* offline, file missing, or opened via file:// — just use local venues */ }
 }
 
 function applyVenue(name){
@@ -443,6 +450,7 @@ $("fetchWeatherBtn").onclick = async () => {
 
 // ---------- Init ----------
 renderVenueChips();
+loadSharedVenues();
 populateMountedSelect();
 refreshConfigBox();
 updateWheelUI();
