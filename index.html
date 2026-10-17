@@ -77,6 +77,11 @@
   #output label.row:last-child{border-bottom:none}
   #listTitle{font-weight:700; margin-bottom:4px}
   .err{color:var(--danger); font-size:12.5px; margin-top:4px}
+  @media print {
+    header, .card:not(#output), #pdfBtn { display: none !important; }
+    #output { display: block !important; border: none; padding: 0; }
+    body { background: #fff; color: #000; }
+  }
 </style>
 </head>
 <body>
@@ -153,6 +158,7 @@
 
   <div class="card">
     <button class="primary" id="generateBtn" style="width:100%; padding:12px">Generate packing list</button>
+    <button id="pdfBtn" style="width:100%; padding:10px; margin-top:8px">Export as PDF</button>
   </div>
 
   <div class="card" id="output" style="display:none"></div>
@@ -405,6 +411,10 @@ $("generateBtn").onclick = () => {
     const id = "w" + key[0].toUpperCase() + key.slice(1);
     if ($(id).checked) Object.entries(CONFIG.weatherItems[key]).forEach(([c,items]) => addTo(packing, c, items));
   });
+  $("pdfBtn").onclick = () => {
+    if ($("output").style.display === "none") { alert("Generate the list first."); return; }
+    window.print();
+  };
 
   document.querySelectorAll('#wheelOptions input[type=checkbox]:checked').forEach(cb => {
     addTo(packing, "Derby Essentials: Gear", [cb.dataset.wheel]);
